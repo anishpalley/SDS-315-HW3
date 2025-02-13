@@ -1,6 +1,6 @@
 ---
-title: "Fix the github link, HW 2"
-author: "Anish Palley, ap65675, https://github.com/anishpalley/SDS-315-HW2"
+title: "HW 3"
+author: "Anish Palley, ap65675, https://github.com/anishpalley/SDS-315-HW3"
 date: "`r Sys.Date()`"
 output:
   html_document:
