@@ -1,0 +1,173 @@
+---
+title: "Fix the github link, HW 2"
+author: "Anish Palley, ap65675, https://github.com/anishpalley/SDS-315-HW2"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+  pdf_document: default
+---
+
+```{r global options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, # show the code
+                      eval = TRUE, # run the code
+                      warning = FALSE, # show warning messages
+                      message = FALSE, # show basic messages
+                      fig.align = "center"
+                      )
+#Uploading necessary packages
+library(tidyverse)
+library(ggplot2)
+library(rvest)
+library(dplyr)
+library(plotly)
+library(mosaic)
+```
+
+### Problem 1
+```{r}
+gas <- read_csv("gasprices.csv")
+```
+#### A)
+```{r}
+gas_competition <- gas |>
+  select(Price, Competitors)|>
+  mutate(Competition = (Competitors == "Y"))
+bootstrap_gas_competition = do(10000)*diffmean(Price ~ Competition, data=resample(gas_competition))
+confint(bootstrap_gas_competition, level=.95)
+```
+Claim: Do gas stations charge more if they lack direct competition in sight?
+Evidence: Using a 95% confidence interval after bootstrapping 10,000 times, the difference in price between gas stations based on whether their competitors were in sight is between around 0.007 and -0.054, with 95% confidence. While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the difference in gas station price and whether their competitors are in sight is not statistically significant, which means that the theory is unsupported by the data.
+Conclusion: After computing a 95% confidence interval from bootstrapping 10,000 times, the data does not support the claim that gas stations charge more if they lack direction competition in sight.
+#### B)
+```{r}
+gas_richness <- gas |>
+  select(Price, Income)
+bootstrap_gas_richness = do(10000)*cor(resample(gas_richness)$Income,resample(gas_richness)$Price )
+confint(bootstrap_gas_richness, level=.95)
+```
+Claim: Do richer areas have higher gas prices? 
+Evidence: Using a 95% confidence interval after bootstrapping 10,000 times, the correlation coefficient of gas prices compared to the income of the area is somewhere between 0.197 and -0.187. While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the correlation in gas prices and income of the area is not statiscally significant, which means that the theory is unsupported by the data.
+Conclusion: After computing a 95% confidence interval from bootstrapping 10,000 times, the data does not support the claim that richer areas have higher gas prices.
+#### C)
+```{r}
+gas_stoplight <- gas |>
+  select(Price, Stoplight)|>
+  mutate(Stop = (Stoplight == "Y"))
+bootstrap_gas_stoplight = do(10000)*diffmean(Price ~ Stop, data=resample(gas_stoplight))
+confint(bootstrap_gas_stoplight, level=.95)
+```
+Claim: Do gas stations at stoplights charge more?
+Evidence: Using a 95% confidence interval after bootstrapping 10,000 times, the difference in price between gas stations based on whether they were located at a stoplight is between around 0.030 and -0.037, with 95% confidence. While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the difference in price between gas stations based on whether they were located at a stoplight is not statistically significant, which means that the theory is unsupported by the data.
+Conclusion: After computing a 95% confidence interval from bootstrapping 10,000 times, the data does not support the claim that gas stations at stoplights charge more.
+#### D)
+```{r}
+gas_highway <- gas |>
+  select(Price, Highway)|>
+  mutate(high = (Highway == "Y"))
+bootstrap_gas_highway = do(10000)*diffmean(Price ~ high, data=resample(gas_highway))
+confint(bootstrap_gas_highway, level=.95)
+```
+Claim: Do gas stations with direct highway access charge more?
+Evidence: Using a 95% confidence interval after bootstrapping 10,000 times, the difference in price between gas stations based on whether they had direct highway access is between around 0.082 and 0.008, with 95% confidence. While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is not contained within the confidence interval each time indicating that the difference in price between gas stations based on whether they had direct highway access is statistically significant, which means that the theory is supported by the data.
+Conclusion: After computing a 95% confidence interval from bootstrapping 10,000 times, the data does support the claim that gas stations at with direct highway access charge more.
+#### E)
+```{r}
+gas_shell <- gas |>
+  select(Price, Brand)|>
+  mutate(shell = (Brand == "Shell"))
+bootstrap_gas_shell = do(10000)*diffmean(Price ~ shell, data=resample(gas_shell))
+confint(bootstrap_gas_shell, level=.95)
+```
+Claim: Does Shell charge more than all other non-Shell brands?
+Evidence: Using a 95% confidence interval after bootstrapping 10,000 times, the difference in price between gas stations that use the Shell brand compared to non-Shell brands is between around 0.065 and -0.011, with 95% confidence. While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the difference in price for gas stations with the Shell brand compared to gas stations without the Shell brand is not statistically significant, which means that the theory is unsupported by the data.
+Conclusion: After computing a 95% confidence interval from bootstrapping 10,000 times, the data does not support the claim that the gas price with the Shell brand is higher compared to gas stations without the Shell brand.
+
+
+### Problem 2
+```{r}
+sclass <- read_csv("sclass.csv")
+```
+#### Part A:
+```{r}
+amg <- sclass |>
+  filter(year == 2011 & trim == "63 AMG")
+bootstrap_mileage = do(10000)*mean(resample(amg)$mileage)
+confint(bootstrap_mileage, level = .95)
+```
+After computing a 95% confidence interval with bootstrapping 10,000 times, the average mileage of 2011 S-Class 63 AMGs that were hitting the used-car market when this data was collected seems to be somewhere between 31851.52 and 26264.80 miles, with 95% confidence.
+#### Part B:
+```{r}
+painted <- sclass |>
+  filter(year == 2014 & trim == "550")|>
+  mutate(isBlack = (color == "Black"))
+bootstrap_painted = do(10000)*prop(resample(painted)$isBlack)
+confint(bootstrap_painted, level=.95)
+```
+After computing a 95% confidence interval with bootstrapping 10,000 times, the proportion of all 2014 S-Class 550s that were painted black is somewhere between 0.417 and 0.453, with 95% confidence.
+
+### Problem 3
+
+```{r}
+survey <- read_csv("nbc_pilotsurvey.csv")
+```
+#### Part A:
+```{r}
+happiness <- survey |>
+  select(Q1_Happy, Show)|>
+  filter(Show == "Living with Ed" | Show == "My Name is Earl")
+boot_happiness = do(10000)*diffmean(Q1_Happy ~ Show, data=resample(happiness))
+confint(boot_happiness, level = .95)
+```
+Question: Is there evidence to show that one of these two shows consistently produces a higher mean happiness response among viewers: Ed on the "Living with Ed" show or Earl on the "My Name is Earl" show?
+Approach: After filtering the given dataset to only include the viewer responses for the two shows and their happiness scores on a scale of 1-5, I computed a 95% confidence interval with bootstrapping 10,000 times.
+Results: The difference in mean viewer response to the happiness score for these two shows is somewhere between -0.398 and 0.104, with 95% confidence.
+Conclusion: While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the difference in mean viewer response to the happiness score for these two shows is not statistically significant, which means that there is not evidence to show that one of these two shows consistently produces a higher mean happiness response among viewers. 0 being within the interval indicates that both shows could have the same mean happiness score, which means that viewers did not think one made them more happy than the other.
+
+#### Part B:
+```{r}
+annoyance <- survey |>
+  select(Q1_Annoyed, Show)|>
+  filter(Show == "The Biggest Loser" | Show == "The Apprentice: Los Angeles")
+boot_annoyance = do(10000)*diffmean(Q1_Annoyed ~ Show, data=resample(annoyance))
+confint(boot_annoyance, level = .95)
+```
+Question: Is there evidence to show that one of these two shows consistently produces a higher mean annoyance response among viewers: "The Biggest Loser" or "The Apprentice: Los Angeles"?
+Approach: After filtering the given dataset to only include the viewer responses for the two shows and their annoyance scores on a scale of 1-5, I computed a 95% confidence interval with bootstrapping 10,000 times.
+Results: The difference in mean viewer response to the happiness score for these two shows is somewhere between -0.530 and -0.014, with 95% confidence.
+Conclusion: While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is not contained within the confidence interval each time indicating that the difference in mean viewer response to the annoyance score for these two shows is statistically significant, which means that there is evidence to show that one of these two shows consistently produces a higher or lower mean annoyance response among viewers. 0 not being within the interval indicates that one show could have a higher or lower mean happiness score compared to the other, which means that viewers did think one annoyed them more than the other.
+
+#### Part C:
+```{r}
+confused <- survey |>
+  select(Q2_Confusing, Show)|>
+  filter(Show == "Dancing with the Stars")|>
+  mutate(confusing = Q2_Confusing >= 4)
+bootstrap_confused = do(10000)*prop(resample(confused)$confusing)
+confint(bootstrap_confused, level = .95)
+```
+Question: Do American TV Watchers find the "Dancing with the Stars" show confusing? What proportion of American TV watchers would we expect to give a response of 4 or greater to "Q2_Confusing" question?
+Approach: After filtering the given dataset to only include the viewer responses for the two shows and their "confusing" scores on a scale of 1-5, I computed a 95% confidence interval with bootstrapping 10,000 times. Additionally, I created a "confusing" variable that indicates whether the "Q2_Confusing" score was equal to or above to 4.
+Results: The proportion of American TV watchers would we expect to give a response of 4 or greater to "Q2_Confusing" question is somewhere between 0.039 and 0.116, with 95% confidence.
+Conclusion: While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is less than the values contained in confidence interval each time indicating that the proportion of viewers who gave a response of 4 or greater to the "Q2_Confusing" question is statistically significant, which means that there is evidence to show that American TV watchers find the "Dancing with the Stars" show confusing. 0 being less than the values within the interval indicates that American TV watchers did find "Dancing with the Stars" confusing since the proportion of watchers who found the show confusing was greater than those who did not.
+
+### Problem 4
+
+```{r}
+ebay <- read_csv("ebay.csv")
+```
+
+```{r}
+ebay_ratio <- ebay |>
+  mutate(rev_ratio = rev_after/rev_before)|>
+  mutate(sample_type = as.factor(adwords_pause))
+
+boot_ebay_ratio = do(10000) * diffprop(rev_ratio ~ sample_type, data = resample(ebay_ratio))
+confint(boot_ebay_ratio, level = 0.95)
+```
+Question: Is there evidence to suggest if the revenue ratio is the same in treatment and control groups? Does the data favor the idea that paid search advertising on Google creates extra revenue for EBay?
+Approach: I used mutate to create a revenue ratio variable, the ratio of the revenue after and the revenue before. I created another variable to determine the sample type as a binary variable instead of numeric. Then, I made a 95% confidence interval with bootstrapping 10,000 times and determing the difference in proportions of revenue ratio across the treatment and control groups.
+Results: The difference in proportions of revenue ratio across the treatment and control groups is somewhere between -0.013 and 0.063, with 95% confidence.
+Conclusion: While the exact upper and lower values of the confidence interval can vary slightly with each run of the code, 0 is contained within the confidence interval each time indicating that the difference in proportions of revenue ratio across treatment and control groups is not statistically significant, which means that there is not evidence to show that search advertising on Google creates extra revenue for Ebay. 0 being within the interval indicates that both groups could have the same revenue ratio, which means that search advertising did not create extra revenue for EBay.
